@@ -1,0 +1,6 @@
+galaxy_info:
+  role_name: docker
+  author: mister-sudo
+  description: Docker initiation
+  license: BSD
+dependencies: []

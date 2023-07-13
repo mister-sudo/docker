@@ -1,0 +1,81 @@
+---
+
+- name: Add user group "{{ docker_compose_user_group }}"
+  group:
+    name: '{{ docker_compose_user_group }}'
+
+- name: Add user "{{ docker_compose_user }}"
+  user:
+    name: '{{ docker_compose_user }}'
+    group: '{{ docker_compose_user_group }}'
+    home: '/home/{{ docker_compose_user }}'
+    shell: /bin/bash
+
+- name: Add Docker GPG apt Key
+  become: yes
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  become: yes
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+
+- name: Update apt and install docker-ce and python3-pip
+  become: yes
+  apt:
+    update_cache: true
+    state: latest
+    name: ['docker-ce', 'python3-pip']
+
+- name: Install Docker Modules for Python
+  become: yes
+  pip:
+    name: ['docker', 'docker-compose']
+
+- name: Start Docker-compose
+  block:
+
+    - name: Build .env file
+      template:
+        src: '.env.j2'
+        dest: '{{ docker_compose_dir }}/{{ docker_compose_env_target_file }}'
+        owner: '{{ docker_compose_user }}'
+        group: '{{ docker_compose_user_group }}'
+        mode: '0644'
+      when: docker_compose_env | default([], true) | length > 0
+
+    - name: Copy docker-compose file
+      copy:
+        src: '{{ docker_compose_file }}'
+        dest: '{{ docker_compose_dir }}/docker-compose.yml'
+        owner: '{{ docker_compose_user }}'
+        group: '{{ docker_compose_user_group }}'
+        mode: '0644'
+
+    - name: Copy extra files
+      copy:
+        src: '{{ item.src }}'
+        dest: '{{ item.dest }}'
+        owner: '{{ item.owner | default(docker_compose_user) }}'
+        group: '{{ item.group | default(docker_compose_user_group) }}'
+        mode: '0644'
+      loop: '{{ docker_compose_extra_files }}'
+      when: docker_compose_extra_files | default([], true) | length > 0
+
+    - name: Run commands
+      shell: '{{ item }}'
+      loop: '{{ docker_compose_run_commands }}'
+      when: docker_compose_run_commands | default([], true) | length > 0
+
+    - name: Build and start containers
+      become: yes
+      docker_compose:
+        project_src: '{{ docker_compose_dir }}'
+        state: present
+        files:
+          - docker-compose.yml
+
+  when: docker_compose_file | default('', true) != ''
