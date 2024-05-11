@@ -1,0 +1,18 @@
+galaxy_info:
+  role_name: docker_deploy
+  namespace: mister-sudo
+  author: mister-sudo
+  description: docker_deploy role
+  company: mister-sudo
+  license: license (GPL-2.0-or-later, MIT, etc)
+  min_ansible_version: 2.10.7
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+  galaxy_tags:
+    - linux
+    - docker
+    - deploy
+dependencies: []
+

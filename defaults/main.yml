@@ -1,0 +1,10 @@
+docker_compose_user: deploy
+docker_compose_user_group: deploy
+docker_compose_dir: '/home/{{ docker_compose_user }}'
+docker_compose_file: '' # example: '../deploy/files/rabbit/docker-compose.yml'
+docker_compose_env: []
+#  - { key: 'RABBITMQ_DEFAULT_USER', value: 'guest' }
+#  - { key: 'RABBITMQ_DEFAULT_USER', value: 'guest' }
+docker_compose_env_target_file: '.env'
+docker_compose_extra_files: []
+docker_compose_run_commands: []
