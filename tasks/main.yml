@@ -50,6 +50,12 @@
     state: started
     enabled: yes
 
+- name: Add user to docker group
+  user:
+    name: '{{ docker_compose_user }}'
+    groups: docker
+    append: yes
+
 - name: Start Docker-compose
   block:
 
